@@ -7,25 +7,25 @@ from datetime import date
 года (например, месяц — от 1 до 12). Проверить работу полученной структуры на реальных данных."""
 
 
-class Date:
+class Data:
+    def __init__(self, data):
+        self.data = data
+
     @classmethod
-    def extraction(cls, string):
-        lst = list(map(int, string.split('-')))
-        return lst
+    def extract(cls, data):
+        data = data.split('-')
+        return int(data[0]), int(data[1]), int(data[2])
 
     @staticmethod
-    def validate(lst):
-        number = lst[0]
-        month = lst[1]
-        year = lst[2]
+    def valid(day, month, year):
         try:
-            date(year, month, number)
+            date(year, month, day)
             return "Дата корректна"
         except ValueError:
             return "Некорректная дата"
 
-    def __init__(self, string):
-        self.res = self.validate(self.extraction(string))
+    def __str__(self):
+        return f'Текущая дата {Data.extract(self.data)}'
 
 
 """
@@ -33,18 +33,9 @@ class Date:
 вводимых пользователем. При вводе нуля в качестве делителя программа должна корректно обработать эту ситуацию и не 
 завершиться с ошибкой."""
 
-
-class DivisionZero:
-    @staticmethod
-    def calculation(x, y):
-        try:
-            return x / y
-        except ZeroDivisionError:
-            return 'Division by zero'
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+class DivisionByZero(Exception):
+    def __init__(self, lst):
+        self.lst = lst
 
 
 """
@@ -59,24 +50,53 @@ class DivisionZero:
 Класс-исключение должен не позволить пользователю ввести текст (не число) и отобразить соответствующее сообщение. 
 При этом работа скрипта не должна завершаться."""
 
+class Numbers(ValueError):
+    def __init__(self, num):
+        self.num = num
 
-class Numbers:
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+
+    # -------------------------------------------  1  ----------------------------------------------------------
+
+    today = Data('11 - 1 - 2001')
+    print(today)
+    print(Data.valid(11, 11, 2022))
+    print(today.valid(11, 13, 2011))
+    print(Data.extract('11 - 11 - 2011'))
+    print(today.extract('11 - 11 - 2020'))
+    print(Data.valid(1, 11, 2000))
+
+    # -------------------------------------------  2  ----------------------------------------------------------
+
+    print('\nDivision by zero')
+    try:
+        numbers = list(map(int, input('Enter two numbers separated by a space > ').split()))
+        if numbers[1] == 0:
+            raise DivisionByZero("Division by zero!")
+    except ValueError:
+        print("Error type of value!")
+    except DivisionByZero as dz:
+        print(dz)
+    else:
+        print(numbers[0] / numbers[1])
+
+    # -------------------------------------------  3  ----------------------------------------------------------
+
     numbers = []
+    while True:
+        try:
+            number = input('Enter the number > ')
+            if number == 'stop':
+                break
+            if not number.isdigit():
+                raise Numbers(number)
+            numbers.append(int(number))
+        except Numbers as err:
+            print('It''s not a number!', err)
 
-    def __init__(self, x):
-        self.x = x
-
-    @classmethod
-    def validate(cls, x):
-        if x.isdigit():
-            cls.numbers.append(int(x))
-            return cls.numbers
-        else:
-            print('Enter the number!')
-
-    @classmethod
-    def result(cls):
-        return cls.numbers
+    print(*numbers)
 
 
 """
